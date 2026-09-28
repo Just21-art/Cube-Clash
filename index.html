@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тест кнопок</title>
+    <title>Тест игры</title>
     <style>
         body { background: #1a1a2e; color: white; font-family: Arial; padding: 20px; text-align: center; }
         button { padding: 20px; font-size: 20px; margin: 10px; border-radius: 10px; border: none; background: #ffd700; color: #1a1a2e; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h1>Тест кнопок</h1>
-    <button onclick="alert('РАБОТАЕТ!')">Нажми меня</button>
-    <p id="result">Пока ничего</p>
+    <h1>CUBE CLASH</h1>
+    <button onclick="startGame()">▶ ИГРАТЬ</button>
+    <p id="status">Не начато</p>
+
     <script>
-        function test() {
-            document.getElementById("result").textContent = "Кнопка сработала!";
+        function startGame() {
+            document.getElementById("status").textContent = "Игра началась!";
+            alert("Кнопка Играть работает!");
         }
     </script>
 </body>

@@ -3,66 +3,67 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Cube Clash v1.1</title>
+<title>Cube Clash v1.2</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html, body { height:100%; overflow:hidden; background:#1a1a2e; font-family:Arial, sans-serif; }
+  html, body { height:100%; overflow:hidden; background:#1a1a2e; font-family:Arial,sans-serif; }
   canvas { display:block; width:100%; height:100%; background:linear-gradient(180deg,#16213e 0%,#0f3460 100%); }
 
   .screen {
     position:fixed; inset:0;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     text-align:center; color:#fff; padding:20px;
-    background:rgba(26,26,46,0.97);
-    z-index:10;
+    background:rgba(26,26,46,0.97); z-index:20;
   }
   .hidden { display:none !important; }
 
-  h1 {
-    font-size:48px; color:#ffd700; letter-spacing:3px; margin-bottom:8px;
-    text-shadow:0 0 30px rgba(255,215,0,0.8);
-  }
-  .subtitle { color:#ffd700; opacity:0.8; font-size:16px; margin-bottom:30px; }
-  .label { color:#ffd700; font-size:18px; margin-bottom:15px; }
+  h1 { font-size:48px; color:#ffd700; letter-spacing:3px; margin-bottom:6px;
+       text-shadow:0 0 30px rgba(255,215,0,0.8); }
+  .subtitle { color:#ffd700; opacity:0.85; font-size:15px; margin-bottom:8px; }
+  .record { color:#10b981; font-size:16px; margin-bottom:20px; font-weight:bold; }
+  .label { color:#ffd700; font-size:16px; margin-bottom:12px; }
 
-  .colors { display:flex; gap:15px; margin-bottom:30px; }
+  .colors { display:flex; gap:14px; margin-bottom:25px; }
   .color-btn {
-    width:50px; height:50px; border-radius:10px;
+    width:52px; height:52px; border-radius:12px;
     border:3px solid transparent; cursor:pointer; transition:0.2s;
   }
-  .color-btn.selected {
-    border-color:#fff; transform:scale(1.15);
-    box-shadow:0 0 20px currentColor;
-  }
+  .color-btn.selected { border-color:#fff; transform:scale(1.15); box-shadow:0 0 22px currentColor; }
 
   .play-btn {
-    padding:15px 50px; font-size:22px;
+    padding:15px 55px; font-size:22px;
     background:#ffd700; color:#1a1a2e;
-    border:none; border-radius:15px; font-weight:bold;
-    cursor:pointer;
+    border:none; border-radius:15px; font-weight:bold; cursor:pointer;
   }
   .play-btn:active { transform:scale(0.95); }
 
   #hud {
-    position:fixed; top:20px; left:0; width:100%;
+    position:fixed; top:15px; left:0; width:100%;
     text-align:center; color:#ffd700; font-size:20px; font-weight:bold;
     pointer-events:none; z-index:5;
     text-shadow:0 0 10px rgba(255,215,0,0.7);
   }
-  #hud .best { color:#888; font-size:14px; margin-top:5px; }
+  #hud .best { color:#888; font-size:13px; margin-top:4px; }
+
+  #pauseBtn {
+    position:fixed; top:15px; right:15px;
+    background:rgba(255,215,0,0.9); color:#1a1a2e;
+    border:none; border-radius:10px; padding:8px 14px;
+    font-size:16px; font-weight:bold; cursor:pointer; z-index:6;
+  }
 
   .version {
-    position:fixed; bottom:15px; right:15px;
+    position:fixed; bottom:12px; right:12px;
     color:#ffd700; font-size:12px; opacity:0.6; font-weight:bold; z-index:5;
   }
 
-  #gameover h2 { color:#e94560; font-size:36px; margin-bottom:15px; }
-  #gameover p { font-size:20px; margin-bottom:10px; }
-  #gameover .best-text { color:#ffd700; margin-bottom:25px; }
+  #gameover h2 { color:#e94560; font-size:34px; margin-bottom:12px; }
+  #gameover p { font-size:20px; margin-bottom:8px; }
+  #gameover .best-text { color:#ffd700; margin-bottom:22px; }
 
-  .btn-row { display:flex; gap:15px; }
+  .btn-row { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
   .btn-row button {
-    padding:12px 25px; font-size:16px; border:none; border-radius:10px;
+    padding:12px 22px; font-size:16px; border:none; border-radius:10px;
     font-weight:bold; cursor:pointer;
   }
   .btn-again { background:#ffd700; color:#1a1a2e; }
@@ -78,11 +79,13 @@
   <div class="best">Рекорд: <span id="best">0</span></div>
 </div>
 
-<div class="version hidden" id="verLabel">v1.1</div>
+<button id="pauseBtn" class="hidden">⏸</button>
+<div class="version hidden" id="verLabel">v1.2</div>
 
 <div id="menu" class="screen">
   <h1>CUBE CLASH</h1>
-  <p class="subtitle">🎮 Версия 1.1</p>
+  <p class="subtitle">🎮 Версия 1.2</p>
+  <p class="record">🏆 Рекорд: <span id="menuBest">0</span></p>
   <p class="label">Выбери персонажа:</p>
   <div class="colors">
     <div class="color-btn selected" style="background:#ffd700;color:#ffd700" data-color="0"></div>
@@ -91,6 +94,14 @@
     <div class="color-btn" style="background:#51cf66;color:#51cf66" data-color="3"></div>
   </div>
   <button class="play-btn" id="playBtn">▶ ИГРАТЬ</button>
+</div>
+
+<div id="pauseScreen" class="screen hidden">
+  <h2 style="color:#ffd700;font-size:34px;margin-bottom:25px;">⏸ Пауза</h2>
+  <div class="btn-row">
+    <button class="btn-again" id="resumeBtn">▶ Продолжить</button>
+    <button class="btn-menu" id="pauseMenuBtn">🏠 В меню</button>
+  </div>
 </div>
 
 <div id="gameover" class="screen hidden">
@@ -113,17 +124,36 @@
   var COLORS = ["#ffd700", "#e94560", "#4dabf7", "#51cf66"];
   var selectedColor = 0;
 
-  var W, H;
+  var W, H, groundY;
   function resize() {
     W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight;
     groundY = H - 80;
   }
+  resize();
+  window.addEventListener("resize", resize);
 
-  var player, obstacles, score, speed, gameOver, gravity, jumpPower, groundY;
-  var spawnTimer, bestScore, rafId;
+  var player, obstacles, score, speed, gameOver, paused;
+  var gravity = 0.8, jumpPower = -15, spawnTimer, bestScore, rafId;
+  var audioCtx = null;
 
   bestScore = parseInt(localStorage.getItem("cubeBest") || "0", 10) || 0;
+  document.getElementById("menuBest").textContent = bestScore;
+
+  function beep(freq, dur) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      var o = audioCtx.createOscillator();
+      var g = audioCtx.createGain();
+      o.frequency.value = freq;
+      o.type = "square";
+      g.gain.value = 0.05;
+      o.connect(g);
+      g.connect(audioCtx.destination);
+      o.start();
+      o.stop(audioCtx.currentTime + dur);
+    } catch(e) {}
+  }
 
   function init() {
     groundY = H - 80;
@@ -132,8 +162,7 @@
     score = 0;
     speed = 5;
     gameOver = false;
-    gravity = 0.8;
-    jumpPower = -15;
+    paused = false;
     spawnTimer = 0;
     document.getElementById("score").textContent = "0";
     document.getElementById("best").textContent = bestScore;
@@ -142,7 +171,9 @@
   function startGame() {
     document.getElementById("menu").classList.add("hidden");
     document.getElementById("gameover").classList.add("hidden");
+    document.getElementById("pauseScreen").classList.add("hidden");
     document.getElementById("hud").classList.remove("hidden");
+    document.getElementById("pauseBtn").classList.remove("hidden");
     document.getElementById("verLabel").classList.remove("hidden");
     resize();
     init();
@@ -153,16 +184,34 @@
   function showMenu() {
     document.getElementById("menu").classList.remove("hidden");
     document.getElementById("gameover").classList.add("hidden");
+    document.getElementById("pauseScreen").classList.add("hidden");
     document.getElementById("hud").classList.add("hidden");
+    document.getElementById("pauseBtn").classList.add("hidden");
     document.getElementById("verLabel").classList.add("hidden");
+    document.getElementById("menuBest").textContent = bestScore;
     gameOver = true;
+    paused = true;
+    if (rafId) cancelAnimationFrame(rafId);
+  }
+
+  function togglePause() {
+    if (gameOver) return;
+    if (paused) {
+      paused = false;
+      document.getElementById("pauseScreen").classList.add("hidden");
+      loop();
+    } else {
+      paused = true;
+      document.getElementById("pauseScreen").classList.remove("hidden");
+    }
   }
 
   function jump() {
-    if (gameOver || !player) return;
+    if (gameOver || paused || !player) return;
     if (player.onGround) {
       player.vy = jumpPower;
       player.onGround = false;
+      beep(700, 0.06);
     }
   }
 
@@ -178,8 +227,21 @@
     });
   }
 
+  function spawnDouble() {
+    spawnObstacle();
+    var last = obstacles[obstacles.length - 1];
+    var size2 = 25 + Math.random() * 20;
+    obstacles.push({
+      x: last.x + last.w + 25,
+      y: groundY - size2,
+      w: size2,
+      h: size2,
+      type: "square"
+    });
+  }
+
   function update() {
-    if (gameOver) return;
+    if (gameOver || paused) return;
 
     player.vy += gravity;
     player.y += player.vy;
@@ -191,8 +253,9 @@
     }
 
     spawnTimer++;
-    if (spawnTimer > 55 + Math.random() * 35) {
-      spawnObstacle();
+    if (spawnTimer > 50 + Math.random() * 35) {
+      if (score > 8 && Math.random() < 0.3) spawnDouble();
+      else spawnObstacle();
       spawnTimer = 0;
     }
 
@@ -204,6 +267,7 @@
           player.x + player.size > o.x &&
           player.y < o.y + o.h &&
           player.y + player.size > o.y) {
+        beep(200, 0.2);
         endGame();
         return;
       }
@@ -222,7 +286,6 @@
 
     ctx.fillStyle = "#0f3460";
     ctx.fillRect(0, groundY, W, H - groundY);
-
     ctx.strokeStyle = "#ffd700";
     ctx.lineWidth = 3;
     ctx.beginPath();
@@ -267,60 +330,54 @@
     }
 
     document.getElementById("bestScore").textContent = bestScore;
+    document.getElementById("pauseBtn").classList.add("hidden");
     document.getElementById("gameover").classList.remove("hidden");
   }
 
   function loop() {
-    if (gameOver) return;
+    if (gameOver || paused) return;
     update();
     draw();
     rafId = requestAnimationFrame(loop);
   }
 
-  // Управление — только через addEventListener (надёжнее)
   document.getElementById("playBtn").addEventListener("click", startGame);
   document.getElementById("againBtn").addEventListener("click", startGame);
   document.getElementById("menuBtn").addEventListener("click", showMenu);
+  document.getElementById("pauseBtn").addEventListener("click", togglePause);
+  document.getElementById("resumeBtn").addEventListener("click", togglePause);
+  document.getElementById("pauseMenuBtn").addEventListener("click", showMenu);
 
   var colorBtns = document.querySelectorAll(".color-btn");
   for (var i = 0; i < colorBtns.length; i++) {
     (function(btn) {
       btn.addEventListener("click", function() {
         selectedColor = parseInt(btn.getAttribute("data-color"), 10);
-        for (var j = 0; j < colorBtns.length; j++) {
-          colorBtns[j].classList.remove("selected");
-        }
+        for (var j = 0; j < colorBtns.length; j++) colorBtns[j].classList.remove("selected");
         btn.classList.add("selected");
       });
     })(colorBtns[i]);
   }
 
-  // Прыжок: тап по canvas (не по кнопкам)
   canvas.addEventListener("touchstart", function(e) {
     e.preventDefault();
     jump();
   }, { passive: false });
-
   canvas.addEventListener("mousedown", jump);
 
   document.addEventListener("keydown", function(e) {
     if (e.code === "Space" || e.code === "ArrowUp") {
       e.preventDefault();
-      if (!document.getElementById("menu").classList.contains("hidden")) {
-        startGame();
-      } else if (!document.getElementById("gameover").classList.contains("hidden")) {
-        startGame();
-      } else {
-        jump();
-      }
+      if (!document.getElementById("menu").classList.contains("hidden")) startGame();
+      else if (!document.getElementById("gameover").classList.contains("hidden")) startGame();
+      else if (!document.getElementById("pauseScreen").classList.contains("hidden")) togglePause();
+      else jump();
     }
   });
-
-  window.addEventListener("resize", resize);
 
   resize();
   init();
 })();
 </script>
 </body>
-    </html>
+</html>

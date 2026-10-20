@@ -20,14 +20,24 @@
   h1 { font-size:48px; color:#ffd700; letter-spacing:3px; margin-bottom:6px; text-shadow:0 0 30px rgba(255,215,0,0.8); }
   .subtitle { color:#ffd700; opacity:0.85; font-size:15px; margin-bottom:8px; }
   .record { color:#10b981; font-size:16px; margin-bottom:20px; font-weight:bold; }
-  .label { color:#ffd700; font-size:16px; margin-bottom:12px; }
 
   .colors { display:flex; gap:14px; margin-bottom:25px; }
   .color-btn { width:52px; height:52px; border-radius:12px; border:3px solid transparent; cursor:pointer; transition:0.2s; }
   .color-btn.selected { border-color:#fff; transform:scale(1.15); box-shadow:0 0 22px currentColor; }
 
-  .play-btn { padding:15px 55px; font-size:22px; background:#ffd700; color:#1a1a2e; border:none; border-radius:15px; font-weight:bold; cursor:pointer; }
-  .play-btn:active { transform:scale(0.95); }
+  .menu-buttons { display:flex; flex-direction:column; gap:12px; width:80%; max-width:300px; }
+  .menu-btn { padding:15px; font-size:20px; background:#ffd700; color:#1a1a2e; border:none; border-radius:15px; font-weight:bold; cursor:pointer; transition:0.2s; }
+  .menu-btn:active { transform:scale(0.95); }
+  .menu-btn.secondary { background:#0f3460; color:#fff; }
+
+  .level-buttons { display:flex; flex-direction:column; gap:15px; width:80%; max-width:300px; margin-bottom:20px; }
+  .level-btn { padding:20px; font-size:22px; background:#1e293b; color:#fff; border:2px solid #4dabf7; border-radius:15px; font-weight:bold; cursor:pointer; transition:0.2s; }
+  .level-btn:active { transform:scale(0.95); background:#4dabf7; color:#1a1a2e; }
+  .level-btn span { display:block; font-size:14px; color:#888; margin-top:5px; font-weight:normal; }
+  .level-btn:active span { color:#1a1a2e; }
+
+  .back-btn { padding:12px 25px; font-size:16px; background:#e94560; color:#fff; border:none; border-radius:10px; font-weight:bold; cursor:pointer; }
+  .back-btn:active { transform:scale(0.95); }
 
   #hud { position:fixed; top:15px; left:0; width:100%; text-align:center; color:#ffd700; font-size:20px; font-weight:bold; pointer-events:none; z-index:5; text-shadow:0 0 10px rgba(255,215,0,0.7); }
   #hud .best { color:#888; font-size:13px; margin-top:4px; }
@@ -48,7 +58,6 @@
   .btn-row button { padding:12px 22px; font-size:16px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; }
   .btn-again { background:#ffd700; color:#1a1a2e; }
   .btn-menu { background:#0f3460; color:#fff; }
-  .btn-next { background:#10b981; color:#fff; }
 </style>
 </head>
 <body>
@@ -64,20 +73,49 @@
 <button id="pauseBtn" class="hidden">⏸</button>
 <div class="version hidden" id="verLabel">v1.3</div>
 
+<!-- ГЛАВНОЕ МЕНЮ -->
 <div id="menu" class="screen">
   <h1>CUBE CLASH</h1>
   <p class="subtitle">🎮 Версия 1.3</p>
   <p class="record">🏆 Рекорд: <span id="menuBest">0</span></p>
-  <p class="label">Выбери персонажа:</p>
+  
+  <p style="color:#ffd700;font-size:16px;margin-bottom:12px;">Выбери персонажа:</p>
   <div class="colors">
     <div class="color-btn selected" style="background:#ffd700;color:#ffd700" data-color="0"></div>
     <div class="color-btn" style="background:#e94560;color:#e94560" data-color="1"></div>
     <div class="color-btn" style="background:#4dabf7;color:#4dabf7" data-color="2"></div>
     <div class="color-btn" style="background:#51cf66;color:#51cf66" data-color="3"></div>
   </div>
-  <button class="play-btn" id="playBtn">▶ ИГРАТЬ</button>
+
+  <div class="menu-buttons">
+    <button class="menu-btn" id="playBtn">▶ ИГРАТЬ (с 1 уровня)</button>
+    <button class="menu-btn secondary" id="levelsBtn">📋 УРОВНИ</button>
+  </div>
 </div>
 
+<!-- ВЫБОР УРОВНЯ -->
+<div id="levelsScreen" class="screen hidden">
+  <h1 style="font-size:36px;margin-bottom:30px;">📋 ВЫБОР УРОВНЯ</h1>
+  
+  <div class="level-buttons">
+    <button class="level-btn" data-level="0">
+      Уровень 1
+      <span>Цель: 15 очков • Скорость: низкая</span>
+    </button>
+    <button class="level-btn" data-level="1">
+      Уровень 2
+      <span>Цель: 30 очков • Скорость: средняя</span>
+    </button>
+    <button class="level-btn" data-level="2">
+      Уровень 3
+      <span>Цель: 50 очков • Скорость: высокая</span>
+    </button>
+  </div>
+
+  <button class="back-btn" id="backToMenuBtn">◀ Назад в меню</button>
+</div>
+
+<!-- ПАУЗА -->
 <div id="pauseScreen" class="screen hidden">
   <h2 style="color:#ffd700;font-size:34px;margin-bottom:25px;">⏸ Пауза</h2>
   <div class="btn-row">
@@ -86,18 +124,24 @@
   </div>
 </div>
 
+<!-- УРОВЕНЬ ПРОЙДЕН -->
 <div id="levelup" class="screen hidden">
   <h2>🎉 Уровень пройден!</h2>
   <p>Готов к следующему?</p>
-  <button class="btn-next" id="nextLevelBtn">▶ Дальше</button>
+  <div class="btn-row">
+    <button class="btn-again" id="nextLevelBtn">▶ Дальше</button>
+    <button class="btn-menu" id="levelUpMenuBtn">📋 К уровням</button>
+  </div>
 </div>
 
+<!-- ПОБЕДА -->
 <div id="victory" class="screen hidden">
   <h2 style="color:#ffd700;font-size:38px;margin-bottom:20px;">🏆 ТЫ ПРОШЁЛ ИГРУ!</h2>
   <p style="font-size:20px;margin-bottom:25px;">Ты настоящий мастер Cube Clash!</p>
   <button class="btn-again" id="victoryMenuBtn">🏠 В меню</button>
 </div>
 
+<!-- ПРОИГРЫШ -->
 <div id="gameover" class="screen hidden">
   <h2>💥 Игра окончена!</h2>
   <p>Уровень: <span id="finalLevel">1</span></p>
@@ -132,7 +176,6 @@
   var gravity = 0.8, jumpPower = -15, spawnTimer, bestScore, rafId;
   var audioCtx = null;
 
-  // Настройки уровней
   var LEVELS = [
     { target: 15, speed: 5,   spawnBase: 55 },
     { target: 30, speed: 6.5, spawnBase: 45 },
@@ -158,7 +201,8 @@
     } catch(e) {}
   }
 
-  function init() {
+  function init(levelIndex) {
+    currentLevel = levelIndex || 0;
     groundY = H - 80;
     player = { x:80, y:groundY-40, size:40, vy:0, onGround:true };
     obstacles = [];
@@ -173,32 +217,43 @@
     document.getElementById("best").textContent = bestScore;
   }
 
-  function startGame() {
-    currentLevel = 0;
-    document.getElementById("menu").classList.add("hidden");
-    document.getElementById("gameover").classList.add("hidden");
-    document.getElementById("pauseScreen").classList.add("hidden");
-    document.getElementById("levelup").classList.add("hidden");
-    document.getElementById("victory").classList.add("hidden");
+  function showScreen(id) {
+    ["menu", "levelsScreen", "pauseScreen", "levelup", "victory", "gameover"].forEach(function(s) {
+      var el = document.getElementById(s);
+      if (el) el.classList.add("hidden");
+    });
+    if (id) {
+      document.getElementById(id).classList.remove("hidden");
+    }
+  }
+
+  function startGame(levelIndex) {
+    showScreen(null);
     document.getElementById("hud").classList.remove("hidden");
     document.getElementById("pauseBtn").classList.remove("hidden");
     document.getElementById("verLabel").classList.remove("hidden");
     resize();
-    init();
+    init(levelIndex);
     if (rafId) cancelAnimationFrame(rafId);
     loop();
   }
 
   function showMenu() {
-    document.getElementById("menu").classList.remove("hidden");
-    document.getElementById("gameover").classList.add("hidden");
-    document.getElementById("pauseScreen").classList.add("hidden");
-    document.getElementById("levelup").classList.add("hidden");
-    document.getElementById("victory").classList.add("hidden");
+    showScreen("menu");
     document.getElementById("hud").classList.add("hidden");
     document.getElementById("pauseBtn").classList.add("hidden");
     document.getElementById("verLabel").classList.add("hidden");
     document.getElementById("menuBest").textContent = bestScore;
+    gameOver = true;
+    paused = true;
+    if (rafId) cancelAnimationFrame(rafId);
+  }
+
+  function showLevels() {
+    showScreen("levelsScreen");
+    document.getElementById("hud").classList.add("hidden");
+    document.getElementById("pauseBtn").classList.add("hidden");
+    document.getElementById("verLabel").classList.add("hidden");
     gameOver = true;
     paused = true;
     if (rafId) cancelAnimationFrame(rafId);
@@ -238,23 +293,19 @@
   }
 
   function nextLevel() {
-    currentLevel++;
-    if (currentLevel >= LEVELS.length) {
-      // Победа
-      gameOver = true;
+    if (currentLevel + 1 >= LEVELS.length) {
+      showScreen("victory");
       document.getElementById("pauseBtn").classList.add("hidden");
-      document.getElementById("victory").classList.remove("hidden");
+      gameOver = true;
       return;
     }
-    // Переход на следующий уровень
-    document.getElementById("levelup").classList.add("hidden");
-    init();
-    loop();
+    startGame(currentLevel + 1);
   }
 
   function levelUp() {
     paused = true;
-    document.getElementById("levelup").classList.remove("hidden");
+    document.getElementById("pauseBtn").classList.add("hidden");
+    showScreen("levelup");
   }
 
   function update() {
@@ -353,7 +404,7 @@
 
     document.getElementById("bestScore").textContent = bestScore;
     document.getElementById("pauseBtn").classList.add("hidden");
-    document.getElementById("gameover").classList.remove("hidden");
+    showScreen("gameover");
   }
 
   function loop() {
@@ -363,13 +414,33 @@
     rafId = requestAnimationFrame(loop);
   }
 
-  document.getElementById("playBtn").addEventListener("click", startGame);
-  document.getElementById("againBtn").addEventListener("click", startGame);
+  // --- Кнопки ---
+  document.getElementById("playBtn").addEventListener("click", function() {
+    startGame(0);
+  });
+
+  document.getElementById("levelsBtn").addEventListener("click", showLevels);
+  document.getElementById("backToMenuBtn").addEventListener("click", showMenu);
+
+  var levelBtns = document.querySelectorAll(".level-btn");
+  for (var i = 0; i < levelBtns.length; i++) {
+    (function(btn) {
+      btn.addEventListener("click", function() {
+        var lvl = parseInt(btn.getAttribute("data-level"), 10);
+        startGame(lvl);
+      });
+    })(levelBtns[i]);
+  }
+
+  document.getElementById("againBtn").addEventListener("click", function() {
+    startGame(currentLevel);
+  });
   document.getElementById("menuBtn").addEventListener("click", showMenu);
   document.getElementById("pauseBtn").addEventListener("click", togglePause);
   document.getElementById("resumeBtn").addEventListener("click", togglePause);
   document.getElementById("pauseMenuBtn").addEventListener("click", showMenu);
   document.getElementById("nextLevelBtn").addEventListener("click", nextLevel);
+  document.getElementById("levelUpMenuBtn").addEventListener("click", showLevels);
   document.getElementById("victoryMenuBtn").addEventListener("click", showMenu);
 
   var colorBtns = document.querySelectorAll(".color-btn");
@@ -392,17 +463,23 @@
   document.addEventListener("keydown", function(e) {
     if (e.code === "Space" || e.code === "ArrowUp") {
       e.preventDefault();
-      if (!document.getElementById("menu").classList.contains("hidden")) startGame();
-      else if (!document.getElementById("gameover").classList.contains("hidden")) startGame();
-      else if (!document.getElementById("pauseScreen").classList.contains("hidden")) togglePause();
-      else if (!document.getElementById("levelup").classList.contains("hidden")) nextLevel();
-      else jump();
+      if (!document.getElementById("menu").classList.contains("hidden")) {
+        startGame(0);
+      } else if (!document.getElementById("gameover").classList.contains("hidden")) {
+        startGame(currentLevel);
+      } else if (!document.getElementById("pauseScreen").classList.contains("hidden")) {
+        togglePause();
+      } else if (!document.getElementById("levelup").classList.contains("hidden")) {
+        nextLevel();
+      } else {
+        jump();
+      }
     }
   });
 
   resize();
-  init();
+  init(0);
 })();
 </script>
 </body>
-</html>
+ </html>

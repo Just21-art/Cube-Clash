@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Cube Clash v1.2</title>
+<title>Cube Clash v1.3</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html, body { height:100%; overflow:hidden; background:#1a1a2e; font-family:Arial,sans-serif; }
@@ -17,57 +17,38 @@
   }
   .hidden { display:none !important; }
 
-  h1 { font-size:48px; color:#ffd700; letter-spacing:3px; margin-bottom:6px;
-       text-shadow:0 0 30px rgba(255,215,0,0.8); }
+  h1 { font-size:48px; color:#ffd700; letter-spacing:3px; margin-bottom:6px; text-shadow:0 0 30px rgba(255,215,0,0.8); }
   .subtitle { color:#ffd700; opacity:0.85; font-size:15px; margin-bottom:8px; }
   .record { color:#10b981; font-size:16px; margin-bottom:20px; font-weight:bold; }
   .label { color:#ffd700; font-size:16px; margin-bottom:12px; }
 
   .colors { display:flex; gap:14px; margin-bottom:25px; }
-  .color-btn {
-    width:52px; height:52px; border-radius:12px;
-    border:3px solid transparent; cursor:pointer; transition:0.2s;
-  }
+  .color-btn { width:52px; height:52px; border-radius:12px; border:3px solid transparent; cursor:pointer; transition:0.2s; }
   .color-btn.selected { border-color:#fff; transform:scale(1.15); box-shadow:0 0 22px currentColor; }
 
-  .play-btn {
-    padding:15px 55px; font-size:22px;
-    background:#ffd700; color:#1a1a2e;
-    border:none; border-radius:15px; font-weight:bold; cursor:pointer;
-  }
+  .play-btn { padding:15px 55px; font-size:22px; background:#ffd700; color:#1a1a2e; border:none; border-radius:15px; font-weight:bold; cursor:pointer; }
   .play-btn:active { transform:scale(0.95); }
 
-  #hud {
-    position:fixed; top:15px; left:0; width:100%;
-    text-align:center; color:#ffd700; font-size:20px; font-weight:bold;
-    pointer-events:none; z-index:5;
-    text-shadow:0 0 10px rgba(255,215,0,0.7);
-  }
+  #hud { position:fixed; top:15px; left:0; width:100%; text-align:center; color:#ffd700; font-size:20px; font-weight:bold; pointer-events:none; z-index:5; text-shadow:0 0 10px rgba(255,215,0,0.7); }
   #hud .best { color:#888; font-size:13px; margin-top:4px; }
+  #hud .level { color:#4dabf7; font-size:15px; margin-top:4px; }
 
-  #pauseBtn {
-    position:fixed; top:15px; right:15px;
-    background:rgba(255,215,0,0.9); color:#1a1a2e;
-    border:none; border-radius:10px; padding:8px 14px;
-    font-size:16px; font-weight:bold; cursor:pointer; z-index:6;
-  }
+  #pauseBtn { position:fixed; top:15px; right:15px; background:rgba(255,215,0,0.9); color:#1a1a2e; border:none; border-radius:10px; padding:8px 14px; font-size:16px; font-weight:bold; cursor:pointer; z-index:6; }
 
-  .version {
-    position:fixed; bottom:12px; right:12px;
-    color:#ffd700; font-size:12px; opacity:0.6; font-weight:bold; z-index:5;
-  }
+  .version { position:fixed; bottom:12px; right:12px; color:#ffd700; font-size:12px; opacity:0.6; font-weight:bold; z-index:5; }
 
   #gameover h2 { color:#e94560; font-size:34px; margin-bottom:12px; }
   #gameover p { font-size:20px; margin-bottom:8px; }
   #gameover .best-text { color:#ffd700; margin-bottom:22px; }
 
+  #levelup h2 { color:#10b981; font-size:34px; margin-bottom:20px; }
+  #levelup p { font-size:18px; margin-bottom:25px; }
+
   .btn-row { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
-  .btn-row button {
-    padding:12px 22px; font-size:16px; border:none; border-radius:10px;
-    font-weight:bold; cursor:pointer;
-  }
+  .btn-row button { padding:12px 22px; font-size:16px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; }
   .btn-again { background:#ffd700; color:#1a1a2e; }
   .btn-menu { background:#0f3460; color:#fff; }
+  .btn-next { background:#10b981; color:#fff; }
 </style>
 </head>
 <body>
@@ -75,16 +56,17 @@
 <canvas id="game"></canvas>
 
 <div id="hud" class="hidden">
-  Очки: <span id="score">0</span>
+  Очки: <span id="score">0</span> / <span id="target">15</span>
+  <div class="level">Уровень: <span id="level">1</span> / 3</div>
   <div class="best">Рекорд: <span id="best">0</span></div>
 </div>
 
 <button id="pauseBtn" class="hidden">⏸</button>
-<div class="version hidden" id="verLabel">v1.2</div>
+<div class="version hidden" id="verLabel">v1.3</div>
 
 <div id="menu" class="screen">
   <h1>CUBE CLASH</h1>
-  <p class="subtitle">🎮 Версия 1.2</p>
+  <p class="subtitle">🎮 Версия 1.3</p>
   <p class="record">🏆 Рекорд: <span id="menuBest">0</span></p>
   <p class="label">Выбери персонажа:</p>
   <div class="colors">
@@ -104,9 +86,22 @@
   </div>
 </div>
 
+<div id="levelup" class="screen hidden">
+  <h2>🎉 Уровень пройден!</h2>
+  <p>Готов к следующему?</p>
+  <button class="btn-next" id="nextLevelBtn">▶ Дальше</button>
+</div>
+
+<div id="victory" class="screen hidden">
+  <h2 style="color:#ffd700;font-size:38px;margin-bottom:20px;">🏆 ТЫ ПРОШЁЛ ИГРУ!</h2>
+  <p style="font-size:20px;margin-bottom:25px;">Ты настоящий мастер Cube Clash!</p>
+  <button class="btn-again" id="victoryMenuBtn">🏠 В меню</button>
+</div>
+
 <div id="gameover" class="screen hidden">
   <h2>💥 Игра окончена!</h2>
-  <p>Твой результат: <span id="finalScore">0</span></p>
+  <p>Уровень: <span id="finalLevel">1</span></p>
+  <p>Очки: <span id="finalScore">0</span></p>
   <p class="best-text">🏆 Рекорд: <span id="bestScore">0</span></p>
   <div class="btn-row">
     <button class="btn-again" id="againBtn">🔄 Заново</button>
@@ -137,6 +132,14 @@
   var gravity = 0.8, jumpPower = -15, spawnTimer, bestScore, rafId;
   var audioCtx = null;
 
+  // Настройки уровней
+  var LEVELS = [
+    { target: 15, speed: 5,   spawnBase: 55 },
+    { target: 30, speed: 6.5, spawnBase: 45 },
+    { target: 50, speed: 8,   spawnBase: 35 }
+  ];
+  var currentLevel = 0;
+
   bestScore = parseInt(localStorage.getItem("cubeBest") || "0", 10) || 0;
   document.getElementById("menuBest").textContent = bestScore;
 
@@ -160,18 +163,23 @@
     player = { x:80, y:groundY-40, size:40, vy:0, onGround:true };
     obstacles = [];
     score = 0;
-    speed = 5;
+    speed = LEVELS[currentLevel].speed;
     gameOver = false;
     paused = false;
     spawnTimer = 0;
     document.getElementById("score").textContent = "0";
+    document.getElementById("target").textContent = LEVELS[currentLevel].target;
+    document.getElementById("level").textContent = currentLevel + 1;
     document.getElementById("best").textContent = bestScore;
   }
 
   function startGame() {
+    currentLevel = 0;
     document.getElementById("menu").classList.add("hidden");
     document.getElementById("gameover").classList.add("hidden");
     document.getElementById("pauseScreen").classList.add("hidden");
+    document.getElementById("levelup").classList.add("hidden");
+    document.getElementById("victory").classList.add("hidden");
     document.getElementById("hud").classList.remove("hidden");
     document.getElementById("pauseBtn").classList.remove("hidden");
     document.getElementById("verLabel").classList.remove("hidden");
@@ -185,6 +193,8 @@
     document.getElementById("menu").classList.remove("hidden");
     document.getElementById("gameover").classList.add("hidden");
     document.getElementById("pauseScreen").classList.add("hidden");
+    document.getElementById("levelup").classList.add("hidden");
+    document.getElementById("victory").classList.add("hidden");
     document.getElementById("hud").classList.add("hidden");
     document.getElementById("pauseBtn").classList.add("hidden");
     document.getElementById("verLabel").classList.add("hidden");
@@ -227,17 +237,24 @@
     });
   }
 
-  function spawnDouble() {
-    spawnObstacle();
-    var last = obstacles[obstacles.length - 1];
-    var size2 = 25 + Math.random() * 20;
-    obstacles.push({
-      x: last.x + last.w + 25,
-      y: groundY - size2,
-      w: size2,
-      h: size2,
-      type: "square"
-    });
+  function nextLevel() {
+    currentLevel++;
+    if (currentLevel >= LEVELS.length) {
+      // Победа
+      gameOver = true;
+      document.getElementById("pauseBtn").classList.add("hidden");
+      document.getElementById("victory").classList.remove("hidden");
+      return;
+    }
+    // Переход на следующий уровень
+    document.getElementById("levelup").classList.add("hidden");
+    init();
+    loop();
+  }
+
+  function levelUp() {
+    paused = true;
+    document.getElementById("levelup").classList.remove("hidden");
   }
 
   function update() {
@@ -252,10 +269,10 @@
       player.onGround = true;
     }
 
+    var cfg = LEVELS[currentLevel];
     spawnTimer++;
-    if (spawnTimer > 50 + Math.random() * 35) {
-      if (score > 8 && Math.random() < 0.3) spawnDouble();
-      else spawnObstacle();
+    if (spawnTimer > cfg.spawnBase + Math.random() * 35) {
+      spawnObstacle();
       spawnTimer = 0;
     }
 
@@ -276,7 +293,11 @@
         obstacles.splice(i, 1);
         score++;
         document.getElementById("score").textContent = score;
-        if (score % 5 === 0) speed += 0.5;
+        
+        if (score >= cfg.target) {
+          levelUp();
+          return;
+        }
       }
     }
   }
@@ -323,6 +344,7 @@
   function endGame() {
     gameOver = true;
     document.getElementById("finalScore").textContent = score;
+    document.getElementById("finalLevel").textContent = currentLevel + 1;
 
     if (score > bestScore) {
       bestScore = score;
@@ -347,6 +369,8 @@
   document.getElementById("pauseBtn").addEventListener("click", togglePause);
   document.getElementById("resumeBtn").addEventListener("click", togglePause);
   document.getElementById("pauseMenuBtn").addEventListener("click", showMenu);
+  document.getElementById("nextLevelBtn").addEventListener("click", nextLevel);
+  document.getElementById("victoryMenuBtn").addEventListener("click", showMenu);
 
   var colorBtns = document.querySelectorAll(".color-btn");
   for (var i = 0; i < colorBtns.length; i++) {
@@ -371,6 +395,7 @@
       if (!document.getElementById("menu").classList.contains("hidden")) startGame();
       else if (!document.getElementById("gameover").classList.contains("hidden")) startGame();
       else if (!document.getElementById("pauseScreen").classList.contains("hidden")) togglePause();
+      else if (!document.getElementById("levelup").classList.contains("hidden")) nextLevel();
       else jump();
     }
   });

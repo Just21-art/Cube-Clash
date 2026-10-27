@@ -3,45 +3,55 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Cube Clash v1.3</title>
+<title>Cube Clash v1.4 Halloween</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html, body { height:100%; overflow:hidden; background:#1a1a2e; font-family:Arial,sans-serif; }
-  canvas { display:block; width:100%; height:100%; background:linear-gradient(180deg,#16213e 0%,#0f3460 100%); }
-
+  body { overflow:hidden; background:#1a1a2e; font-family:Arial,sans-serif; touch-action:none; }
+  canvas { display:block; width:100%; height:100%; }
+  
   .screen {
-    position:fixed; inset:0;
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    background:linear-gradient(135deg, #1a0a1a 0%, #0a0a0a 100%);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    text-align:center; color:#fff; padding:20px;
-    background:rgba(26,26,46,0.97); z-index:20;
+    color:white; z-index:20;
   }
   .hidden { display:none !important; }
 
   h1 { font-size:48px; color:#ffd700; letter-spacing:3px; margin-bottom:6px; text-shadow:0 0 30px rgba(255,215,0,0.8); }
   .subtitle { color:#ffd700; opacity:0.85; font-size:15px; margin-bottom:8px; }
-  .record { color:#10b981; font-size:16px; margin-bottom:20px; font-weight:bold; }
+  .record { color:#10b981; font-size:16px; margin-bottom:15px; font-weight:bold; }
+  .label { color:#ffd700; font-size:16px; margin-bottom:10px; }
 
-  .colors { display:flex; gap:14px; margin-bottom:25px; }
-  .color-btn { width:52px; height:52px; border-radius:12px; border:3px solid transparent; cursor:pointer; transition:0.2s; }
+  .colors { display:flex; gap:14px; margin-bottom:15px; }
+  .color-btn { width:50px; height:50px; border-radius:12px; border:3px solid transparent; cursor:pointer; transition:0.2s; }
   .color-btn.selected { border-color:#fff; transform:scale(1.15); box-shadow:0 0 22px currentColor; }
 
-  .menu-buttons { display:flex; flex-direction:column; gap:12px; width:80%; max-width:300px; }
-  .menu-btn { padding:15px; font-size:20px; background:#ffd700; color:#1a1a2e; border:none; border-radius:15px; font-weight:bold; cursor:pointer; transition:0.2s; }
-  .menu-btn:active { transform:scale(0.95); }
-  .menu-btn.secondary { background:#0f3460; color:#fff; }
+  /* Стиль для Тыквы */
+  .pumpkin-btn {
+    width: 60px; height: 60px; background: #ff8c00; border-radius: 15px;
+    position: relative; cursor: pointer; border: 3px solid transparent;
+    margin-bottom: 15px; transition: 0.2s;
+    box-shadow: 0 0 20px rgba(255,140,0,0.6);
+  }
+  .pumpkin-btn.selected { border-color: #fff; transform: scale(1.1); }
+  /* Глаза и рот тыквы */
+  .pumpkin-btn::before {
+    content: ''; position: absolute; top: 15px; left: 12px;
+    width: 10px; height: 10px; background: #000; border-radius: 2px;
+    box-shadow: 26px 0 0 #000; /* Второй глаз */
+  }
+  .pumpkin-btn::after {
+    content: ''; position: absolute; bottom: 12px; left: 15px;
+    width: 30px; height: 12px; background: #000;
+    clip-path: polygon(0% 0%, 20% 100%, 40% 0%, 60% 100%, 80% 0%, 100% 100%, 100% 0%); /* Зубастый рот */
+  }
 
-  .level-buttons { display:flex; flex-direction:column; gap:15px; width:80%; max-width:300px; margin-bottom:20px; }
-  .level-btn { padding:20px; font-size:22px; background:#1e293b; color:#fff; border:2px solid #4dabf7; border-radius:15px; font-weight:bold; cursor:pointer; transition:0.2s; }
-  .level-btn:active { transform:scale(0.95); background:#4dabf7; color:#1a1a2e; }
-  .level-btn span { display:block; font-size:14px; color:#888; margin-top:5px; font-weight:normal; }
-  .level-btn:active span { color:#1a1a2e; }
-
-  .back-btn { padding:12px 25px; font-size:16px; background:#e94560; color:#fff; border:none; border-radius:10px; font-weight:bold; cursor:pointer; }
-  .back-btn:active { transform:scale(0.95); }
+  .play-btn { padding:15px 30px; font-size:20px; background:#ffd700; color:#1a1a2e; border:none; border-radius:15px; font-weight:bold; cursor:pointer; margin-bottom:10px; width:80%; max-width:300px; }
+  .play-btn:active { transform:scale(0.95); }
+  .halloween-btn { background:#ff8c00; color:#fff; border:2px solid #6a0dad; box-shadow:0 0 15px rgba(255,140,0,0.5); }
 
   #hud { position:fixed; top:15px; left:0; width:100%; text-align:center; color:#ffd700; font-size:20px; font-weight:bold; pointer-events:none; z-index:5; text-shadow:0 0 10px rgba(255,215,0,0.7); }
   #hud .best { color:#888; font-size:13px; margin-top:4px; }
-  #hud .level { color:#4dabf7; font-size:15px; margin-top:4px; }
 
   #pauseBtn { position:fixed; top:15px; right:15px; background:rgba(255,215,0,0.9); color:#1a1a2e; border:none; border-radius:10px; padding:8px 14px; font-size:16px; font-weight:bold; cursor:pointer; z-index:6; }
 
@@ -50,9 +60,6 @@
   #gameover h2 { color:#e94560; font-size:34px; margin-bottom:12px; }
   #gameover p { font-size:20px; margin-bottom:8px; }
   #gameover .best-text { color:#ffd700; margin-bottom:22px; }
-
-  #levelup h2 { color:#10b981; font-size:34px; margin-bottom:20px; }
-  #levelup p { font-size:18px; margin-bottom:25px; }
 
   .btn-row { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
   .btn-row button { padding:12px 22px; font-size:16px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; }
@@ -65,57 +72,34 @@
 <canvas id="game"></canvas>
 
 <div id="hud" class="hidden">
-  Очки: <span id="score">0</span> / <span id="target">15</span>
-  <div class="level">Уровень: <span id="level">1</span> / 3</div>
+  Очки: <span id="score">0</span>
   <div class="best">Рекорд: <span id="best">0</span></div>
 </div>
 
 <button id="pauseBtn" class="hidden">⏸</button>
-<div class="version hidden" id="verLabel">v1.3</div>
+<div class="version hidden" id="verLabel">v1.4</div>
 
-<!-- ГЛАВНОЕ МЕНЮ -->
 <div id="menu" class="screen">
   <h1>CUBE CLASH</h1>
-  <p class="subtitle">🎮 Версия 1.3</p>
+  <p class="subtitle">🎮 Версия 1.4 (Хэллоуин)</p>
   <p class="record">🏆 Рекорд: <span id="menuBest">0</span></p>
   
-  <p style="color:#ffd700;font-size:16px;margin-bottom:12px;">Выбери персонажа:</p>
+  <p class="label">Выбери персонажа:</p>
   <div class="colors">
     <div class="color-btn selected" style="background:#ffd700;color:#ffd700" data-color="0"></div>
     <div class="color-btn" style="background:#e94560;color:#e94560" data-color="1"></div>
     <div class="color-btn" style="background:#4dabf7;color:#4dabf7" data-color="2"></div>
     <div class="color-btn" style="background:#51cf66;color:#51cf66" data-color="3"></div>
   </div>
-
-  <div class="menu-buttons">
-    <button class="menu-btn" id="playBtn">▶ ИГРАТЬ (с 1 уровня)</button>
-    <button class="menu-btn secondary" id="levelsBtn">📋 УРОВНИ</button>
-  </div>
-</div>
-
-<!-- ВЫБОР УРОВНЯ -->
-<div id="levelsScreen" class="screen hidden">
-  <h1 style="font-size:36px;margin-bottom:30px;">📋 ВЫБОР УРОВНЯ</h1>
   
-  <div class="level-buttons">
-    <button class="level-btn" data-level="0">
-      Уровень 1
-      <span>Цель: 15 очков • Скорость: низкая</span>
-    </button>
-    <button class="level-btn" data-level="1">
-      Уровень 2
-      <span>Цель: 30 очков • Скорость: средняя</span>
-    </button>
-    <button class="level-btn" data-level="2">
-      Уровень 3
-      <span>Цель: 50 очков • Скорость: высокая</span>
-    </button>
-  </div>
+  <!-- Тыква по центру снизу -->
+  <div class="pumpkin-btn" id="pumpkinBtn" data-color="4"></div>
+  <p class="label" style="font-size:12px; margin-top:-10px; margin-bottom:15px; color:#aaa;">Тыква (Хэллоуин)</p>
 
-  <button class="back-btn" id="backToMenuBtn">◀ Назад в меню</button>
+  <button class="play-btn" id="playBtn">▶ ИГРАТЬ</button>
+  <button class="play-btn halloween-btn" id="halloweenBtn">🎃 ИГРАТЬ В ХЭЛЛОУИН</button>
 </div>
 
-<!-- ПАУЗА -->
 <div id="pauseScreen" class="screen hidden">
   <h2 style="color:#ffd700;font-size:34px;margin-bottom:25px;">⏸ Пауза</h2>
   <div class="btn-row">
@@ -124,28 +108,9 @@
   </div>
 </div>
 
-<!-- УРОВЕНЬ ПРОЙДЕН -->
-<div id="levelup" class="screen hidden">
-  <h2>🎉 Уровень пройден!</h2>
-  <p>Готов к следующему?</p>
-  <div class="btn-row">
-    <button class="btn-again" id="nextLevelBtn">▶ Дальше</button>
-    <button class="btn-menu" id="levelUpMenuBtn">📋 К уровням</button>
-  </div>
-</div>
-
-<!-- ПОБЕДА -->
-<div id="victory" class="screen hidden">
-  <h2 style="color:#ffd700;font-size:38px;margin-bottom:20px;">🏆 ТЫ ПРОШЁЛ ИГРУ!</h2>
-  <p style="font-size:20px;margin-bottom:25px;">Ты настоящий мастер Cube Clash!</p>
-  <button class="btn-again" id="victoryMenuBtn">🏠 В меню</button>
-</div>
-
-<!-- ПРОИГРЫШ -->
 <div id="gameover" class="screen hidden">
   <h2>💥 Игра окончена!</h2>
-  <p>Уровень: <span id="finalLevel">1</span></p>
-  <p>Очки: <span id="finalScore">0</span></p>
+  <p>Твой результат: <span id="finalScore">0</span></p>
   <p class="best-text">🏆 Рекорд: <span id="bestScore">0</span></p>
   <div class="btn-row">
     <button class="btn-again" id="againBtn">🔄 Заново</button>
@@ -160,7 +125,7 @@
   var canvas = document.getElementById("game");
   var ctx = canvas.getContext("2d");
 
-  var COLORS = ["#ffd700", "#e94560", "#4dabf7", "#51cf66"];
+  var COLORS = ["#ffd700", "#e94560", "#4dabf7", "#51cf66", "#ff8c00"]; // 5-й цвет - оранжевый для тыквы
   var selectedColor = 0;
 
   var W, H, groundY;
@@ -175,13 +140,7 @@
   var player, obstacles, score, speed, gameOver, paused;
   var gravity = 0.8, jumpPower = -15, spawnTimer, bestScore, rafId;
   var audioCtx = null;
-
-  var LEVELS = [
-    { target: 15, speed: 5,   spawnBase: 55 },
-    { target: 30, speed: 6.5, spawnBase: 45 },
-    { target: 50, speed: 8,   spawnBase: 35 }
-  ];
-  var currentLevel = 0;
+  var isHalloweenMode = false;
 
   bestScore = parseInt(localStorage.getItem("cubeBest") || "0", 10) || 0;
   document.getElementById("menuBest").textContent = bestScore;
@@ -201,59 +160,41 @@
     } catch(e) {}
   }
 
-  function init(levelIndex) {
-    currentLevel = levelIndex || 0;
+  function init() {
     groundY = H - 80;
     player = { x:80, y:groundY-40, size:40, vy:0, onGround:true };
     obstacles = [];
     score = 0;
-    speed = LEVELS[currentLevel].speed;
+    speed = 5;
     gameOver = false;
     paused = false;
     spawnTimer = 0;
     document.getElementById("score").textContent = "0";
-    document.getElementById("target").textContent = LEVELS[currentLevel].target;
-    document.getElementById("level").textContent = currentLevel + 1;
     document.getElementById("best").textContent = bestScore;
   }
 
-  function showScreen(id) {
-    ["menu", "levelsScreen", "pauseScreen", "levelup", "victory", "gameover"].forEach(function(s) {
-      var el = document.getElementById(s);
-      if (el) el.classList.add("hidden");
-    });
-    if (id) {
-      document.getElementById(id).classList.remove("hidden");
-    }
-  }
-
-  function startGame(levelIndex) {
-    showScreen(null);
+  function startGame(isHalloween) {
+    isHalloweenMode = isHalloween;
+    document.getElementById("menu").classList.add("hidden");
+    document.getElementById("gameover").classList.add("hidden");
+    document.getElementById("pauseScreen").classList.add("hidden");
     document.getElementById("hud").classList.remove("hidden");
     document.getElementById("pauseBtn").classList.remove("hidden");
     document.getElementById("verLabel").classList.remove("hidden");
     resize();
-    init(levelIndex);
+    init();
     if (rafId) cancelAnimationFrame(rafId);
     loop();
   }
 
   function showMenu() {
-    showScreen("menu");
+    document.getElementById("menu").classList.remove("hidden");
+    document.getElementById("gameover").classList.add("hidden");
+    document.getElementById("pauseScreen").classList.add("hidden");
     document.getElementById("hud").classList.add("hidden");
     document.getElementById("pauseBtn").classList.add("hidden");
     document.getElementById("verLabel").classList.add("hidden");
     document.getElementById("menuBest").textContent = bestScore;
-    gameOver = true;
-    paused = true;
-    if (rafId) cancelAnimationFrame(rafId);
-  }
-
-  function showLevels() {
-    showScreen("levelsScreen");
-    document.getElementById("hud").classList.add("hidden");
-    document.getElementById("pauseBtn").classList.add("hidden");
-    document.getElementById("verLabel").classList.add("hidden");
     gameOver = true;
     paused = true;
     if (rafId) cancelAnimationFrame(rafId);
@@ -292,22 +233,6 @@
     });
   }
 
-  function nextLevel() {
-    if (currentLevel + 1 >= LEVELS.length) {
-      showScreen("victory");
-      document.getElementById("pauseBtn").classList.add("hidden");
-      gameOver = true;
-      return;
-    }
-    startGame(currentLevel + 1);
-  }
-
-  function levelUp() {
-    paused = true;
-    document.getElementById("pauseBtn").classList.add("hidden");
-    showScreen("levelup");
-  }
-
   function update() {
     if (gameOver || paused) return;
 
@@ -320,9 +245,8 @@
       player.onGround = true;
     }
 
-    var cfg = LEVELS[currentLevel];
     spawnTimer++;
-    if (spawnTimer > cfg.spawnBase + Math.random() * 35) {
+    if (spawnTimer > 55 + Math.random() * 35) {
       spawnObstacle();
       spawnTimer = 0;
     }
@@ -344,11 +268,7 @@
         obstacles.splice(i, 1);
         score++;
         document.getElementById("score").textContent = score;
-        
-        if (score >= cfg.target) {
-          levelUp();
-          return;
-        }
+        if (score % 5 === 0) speed += 0.5;
       }
     }
   }
@@ -356,37 +276,91 @@
   function draw() {
     ctx.clearRect(0, 0, W, H);
 
-    ctx.fillStyle = "#0f3460";
+    // Фон (Хэллоуинский или обычный)
+    if (isHalloweenMode) {
+        var grad = ctx.createLinearGradient(0, 0, 0, H);
+        grad.addColorStop(0, "#2a0a2a"); // Темно-фиолетовый
+        grad.addColorStop(1, "#0a0a0a");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+    } else {
+        var grad = ctx.createLinearGradient(0, 0, 0, H);
+        grad.addColorStop(0, "#16213e");
+        grad.addColorStop(1, "#0f3460");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+    }
+
+    // Земля
+    ctx.fillStyle = isHalloweenMode ? "#ff8c00" : "#0f3460"; // Оранжевая земля для Хэллоуина
     ctx.fillRect(0, groundY, W, H - groundY);
-    ctx.strokeStyle = "#ffd700";
+    
+    ctx.strokeStyle = isHalloweenMode ? "#6a0dad" : "#ffd700"; // Фиолетовая линия для Хэллоуина
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(0, groundY);
     ctx.lineTo(W, groundY);
     ctx.stroke();
 
+    // Игрок
     var c = COLORS[selectedColor];
     ctx.fillStyle = c;
     ctx.shadowColor = c;
     ctx.shadowBlur = 20;
-    ctx.fillRect(player.x, player.y, player.size, player.size);
-    ctx.shadowBlur = 0;
-
-    for (var i = 0; i < obstacles.length; i++) {
-      var o = obstacles[i];
-      ctx.fillStyle = "#e94560";
-      ctx.shadowColor = "#e94560";
-      ctx.shadowBlur = 15;
-
-      if (o.type === "spike") {
+    
+    if (selectedColor === 4) {
+        // Рисуем Тыкву
+        ctx.fillRect(player.x, player.y, player.size, player.size);
+        // Глаза
+        ctx.fillStyle = "#000";
+        ctx.fillRect(player.x + 8, player.y + 10, 8, 8);
+        ctx.fillRect(player.x + 24, player.y + 10, 8, 8);
+        // Рот
         ctx.beginPath();
-        ctx.moveTo(o.x, o.y + o.h);
-        ctx.lineTo(o.x + o.w / 2, o.y);
-        ctx.lineTo(o.x + o.w, o.y + o.h);
+        ctx.moveTo(player.x + 10, player.y + 28);
+        ctx.lineTo(player.x + 15, player.y + 22);
+        ctx.lineTo(player.x + 20, player.y + 28);
+        ctx.lineTo(player.x + 25, player.y + 22);
+        ctx.lineTo(player.x + 30, player.y + 28);
+        ctx.lineTo(player.x + 30, player.y + 32);
+        ctx.lineTo(player.x + 10, player.y + 32);
         ctx.closePath();
         ctx.fill();
+    } else {
+        ctx.fillRect(player.x, player.y, player.size, player.size);
+    }
+    ctx.shadowBlur = 0;
+
+    // Препятствия
+    for (var i = 0; i < obstacles.length; i++) {
+      var o = obstacles[i];
+      
+      if (isHalloweenMode && o.type === "square") {
+          // Надгробия
+          ctx.fillStyle = "#888";
+          ctx.shadowColor = "#888";
+          ctx.shadowBlur = 10;
+          ctx.fillRect(o.x, o.y, o.w, o.h);
+          // Закругленный верх для надгробия
+          ctx.beginPath();
+          ctx.arc(o.x + o.w/2, o.y, o.w/2, Math.PI, 0);
+          ctx.fill();
       } else {
-        ctx.fillRect(o.x, o.y, o.w, o.h);
+          // Красные шипы (и в обычном, и в хэллоуинском режиме)
+          ctx.fillStyle = "#e94560";
+          ctx.shadowColor = "#e94560";
+          ctx.shadowBlur = 15;
+
+          if (o.type === "spike") {
+            ctx.beginPath();
+            ctx.moveTo(o.x, o.y + o.h);
+            ctx.lineTo(o.x + o.w / 2, o.y);
+            ctx.lineTo(o.x + o.w, o.y + o.h);
+            ctx.closePath();
+            ctx.fill();
+          } else {
+            ctx.fillRect(o.x, o.y, o.w, o.h);
+          }
       }
     }
     ctx.shadowBlur = 0;
@@ -395,7 +369,6 @@
   function endGame() {
     gameOver = true;
     document.getElementById("finalScore").textContent = score;
-    document.getElementById("finalLevel").textContent = currentLevel + 1;
 
     if (score > bestScore) {
       bestScore = score;
@@ -404,7 +377,7 @@
 
     document.getElementById("bestScore").textContent = bestScore;
     document.getElementById("pauseBtn").classList.add("hidden");
-    showScreen("gameover");
+    document.getElementById("gameover").classList.remove("hidden");
   }
 
   function loop() {
@@ -414,36 +387,17 @@
     rafId = requestAnimationFrame(loop);
   }
 
-  // --- Кнопки ---
-  document.getElementById("playBtn").addEventListener("click", function() {
-    startGame(0);
-  });
-
-  document.getElementById("levelsBtn").addEventListener("click", showLevels);
-  document.getElementById("backToMenuBtn").addEventListener("click", showMenu);
-
-  var levelBtns = document.querySelectorAll(".level-btn");
-  for (var i = 0; i < levelBtns.length; i++) {
-    (function(btn) {
-      btn.addEventListener("click", function() {
-        var lvl = parseInt(btn.getAttribute("data-level"), 10);
-        startGame(lvl);
-      });
-    })(levelBtns[i]);
-  }
-
-  document.getElementById("againBtn").addEventListener("click", function() {
-    startGame(currentLevel);
-  });
+  // --- КНОПКИ ---
+  document.getElementById("playBtn").addEventListener("click", function() { startGame(false); });
+  document.getElementById("halloweenBtn").addEventListener("click", function() { startGame(true); });
+  document.getElementById("againBtn").addEventListener("click", function() { startGame(isHalloweenMode); });
   document.getElementById("menuBtn").addEventListener("click", showMenu);
   document.getElementById("pauseBtn").addEventListener("click", togglePause);
   document.getElementById("resumeBtn").addEventListener("click", togglePause);
   document.getElementById("pauseMenuBtn").addEventListener("click", showMenu);
-  document.getElementById("nextLevelBtn").addEventListener("click", nextLevel);
-  document.getElementById("levelUpMenuBtn").addEventListener("click", showLevels);
-  document.getElementById("victoryMenuBtn").addEventListener("click", showMenu);
 
-  var colorBtns = document.querySelectorAll(".color-btn");
+  // Выбор цвета
+  var colorBtns = document.querySelectorAll(".color-btn, .pumpkin-btn");
   for (var i = 0; i < colorBtns.length; i++) {
     (function(btn) {
       btn.addEventListener("click", function() {
@@ -454,6 +408,7 @@
     })(colorBtns[i]);
   }
 
+  // Управление
   canvas.addEventListener("touchstart", function(e) {
     e.preventDefault();
     jump();
@@ -463,23 +418,16 @@
   document.addEventListener("keydown", function(e) {
     if (e.code === "Space" || e.code === "ArrowUp") {
       e.preventDefault();
-      if (!document.getElementById("menu").classList.contains("hidden")) {
-        startGame(0);
-      } else if (!document.getElementById("gameover").classList.contains("hidden")) {
-        startGame(currentLevel);
-      } else if (!document.getElementById("pauseScreen").classList.contains("hidden")) {
-        togglePause();
-      } else if (!document.getElementById("levelup").classList.contains("hidden")) {
-        nextLevel();
-      } else {
-        jump();
-      }
+      if (!document.getElementById("menu").classList.contains("hidden")) startGame(false);
+      else if (!document.getElementById("gameover").classList.contains("hidden")) startGame(isHalloweenMode);
+      else if (!document.getElementById("pauseScreen").classList.contains("hidden")) togglePause();
+      else jump();
     }
   });
 
   resize();
-  init(0);
+  init();
 })();
 </script>
 </body>
- </html>
+</html>

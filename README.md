@@ -1,2 +1,3 @@
 # Cube-Clash
-Cube Clash-A game about a jumping square that overcomes obstacles. 
+Cube Clash-это игра где прыгающий квадрат преодолевает препятствия,можно выбрать своего персонажа,и преодолевать препятствия.
+

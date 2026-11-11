@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Cube Clash v1.4 Halloween</title>
+<title>Cube Clash v1.5</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   body { overflow:hidden; background:#1a1a2e; font-family:Arial,sans-serif; touch-action:none; }
@@ -43,13 +43,12 @@
 
   .play-btn { padding:15px 30px; font-size:20px; background:#ffd700; color:#1a1a2e; border:none; border-radius:15px; font-weight:bold; cursor:pointer; margin-bottom:10px; width:100%; max-width:300px; }
   .play-btn:active { transform:scale(0.95); }
-  .halloween-btn { background:#ff8c00; color:#fff; border:2px solid #6a0dad; box-shadow:0 0 15px rgba(255,140,0,0.5); }
   .secondary-btn { background:#0f3460; color:#fff; border:2px solid #4dabf7; }
 
   /* Выбор уровня */
-  .level-btn { padding:20px; font-size:22px; background:#1e293b; color:#fff; border:2px solid #4dabf7; border-radius:15px; font-weight:bold; cursor:pointer; width:100%; max-width:300px; margin-bottom:15px; }
+  .level-btn { padding:15px; font-size:18px; background:#1e293b; color:#fff; border:2px solid #4dabf7; border-radius:15px; font-weight:bold; cursor:pointer; width:100%; max-width:300px; margin-bottom:10px; }
   .level-btn:active { background:#4dabf7; color:#1a1a2e; }
-  .level-btn span { display:block; font-size:14px; color:#888; margin-top:5px; font-weight:normal; }
+  .level-btn span { display:block; font-size:12px; color:#888; margin-top:5px; font-weight:normal; }
 
   #hud { position:fixed; top:15px; left:0; width:100%; text-align:center; color:#ffd700; font-size:20px; font-weight:bold; pointer-events:none; z-index:5; text-shadow:0 0 10px rgba(255,215,0,0.7); }
   #hud .best { color:#888; font-size:13px; margin-top:4px; }
@@ -78,12 +77,12 @@
 </div>
 
 <button id="pauseBtn" class="hidden">⏸</button>
-<div class="version hidden" id="verLabel">v1.4</div>
+<div class="version hidden" id="verLabel">v1.5</div>
 
 <!-- ГЛАВНОЕ МЕНЮ -->
 <div id="menu" class="screen">
   <h1>CUBE CLASH</h1>
-  <p class="subtitle">🎮 Версия 1.4 (Хэллоуин)</p>
+  <p class="subtitle">🎮 Версия 1.5</p>
   <p class="record">🏆 Рекорд: <span id="menuBest">0</span></p>
   
   <p class="label">Выбери персонажа:</p>
@@ -95,20 +94,21 @@
   </div>
   
   <div class="pumpkin-btn" id="pumpkinBtn" data-color="4"></div>
-  <p class="label" style="font-size:12px; margin-top:-10px; margin-bottom:15px; color:#aaa;">Тыква (Хэллоуин)</p>
+  <p class="label" style="font-size:12px; margin-top:-10px; margin-bottom:15px; color:#aaa;">Тыква (Секретный скин)</p>
 
   <button class="play-btn" id="playBtn">▶ ИГРАТЬ (с 1 уровня)</button>
   <button class="play-btn secondary-btn" id="levelsBtn">📋 УРОВНИ</button>
-  <button class="play-btn halloween-btn" id="halloweenBtn">🎃 ИГРАТЬ В ХЭЛЛОУИН</button>
 </div>
 
 <!-- ВЫБОР УРОВНЯ -->
 <div id="levelsScreen" class="screen hidden">
-  <h1 style="font-size:36px; margin-bottom:30px;">📋 ВЫБОР УРОВНЯ</h1>
+  <h1 style="font-size:36px; margin-bottom:20px;">📋 ВЫБОР УРОВНЯ</h1>
   <button class="level-btn" data-level="0">Уровень 1<span>Цель: 15 очков • Низкая скорость</span></button>
   <button class="level-btn" data-level="1">Уровень 2<span>Цель: 30 очков • Средняя скорость</span></button>
   <button class="level-btn" data-level="2">Уровень 3<span>Цель: 50 очков • Высокая скорость</span></button>
-  <button class="btn-menu" id="backToMenuBtn" style="margin-top:20px; padding:12px 25px;">◀ Назад в меню</button>
+  <button class="level-btn" data-level="3">Уровень 4<span>Цель: 75 очков • Очень высокая</span></button>
+  <button class="level-btn" data-level="4">Уровень 5<span>Цель: 100 очков • Безумная скорость</span></button>
+  <button class="btn-menu" id="backToMenuBtn" style="margin-top:15px; padding:12px 25px;">◀ Назад в меню</button>
 </div>
 
 <!-- ПАУЗА -->
@@ -150,17 +150,17 @@
   resize();
   window.addEventListener("resize", resize);
 
-  // Физика (сделана плавнее, как в 1.3)
   var player, obstacles, score, speed, gameOver, paused;
   var gravity = 0.6, jumpPower = -14, spawnTimer, bestScore, rafId;
   var audioCtx = null;
-  var isHalloweenMode = false;
-
-  // Уровни
+  
+  // Обновленные уровни
   var LEVELS = [
-    { target: 15, speed: 5,   spawnBase: 55 },
-    { target: 30, speed: 6.5, spawnBase: 45 },
-    { target: 50, speed: 8,   spawnBase: 35 }
+    { target: 15, speed: 4.5, spawnBase: 60 }, // 1
+    { target: 30, speed: 5.5, spawnBase: 50 }, // 2
+    { target: 50, speed: 6.5, spawnBase: 42 }, // 3
+    { target: 75, speed: 7.5, spawnBase: 35 }, // 4
+    { target: 100, speed: 9.0, spawnBase: 28 } // 5
   ];
   var currentLevel = 0;
 
@@ -192,7 +192,7 @@
     gameOver = false;
     paused = false;
     spawnTimer = 0;
-    document.getElementById("score").textContent = "0";
+    document.getElementById("score").textContent = "0 / " + LEVELS[currentLevel].target;
     document.getElementById("best").textContent = bestScore;
   }
 
@@ -204,8 +204,7 @@
     if (id) document.getElementById(id).classList.remove("hidden");
   }
 
-  function startGame(isHalloween, levelIndex) {
-    isHalloweenMode = isHalloween;
+  function startGame(levelIndex) {
     showScreen(null);
     document.getElementById("hud").classList.remove("hidden");
     document.getElementById("pauseBtn").classList.remove("hidden");
@@ -284,7 +283,7 @@
 
     var cfg = LEVELS[currentLevel];
     spawnTimer++;
-    if (spawnTimer > cfg.spawnBase + Math.random() * 35) {
+    if (spawnTimer > cfg.spawnBase + Math.random() * 30) {
       spawnObstacle();
       spawnTimer = 0;
     }
@@ -306,7 +305,7 @@
         obstacles.splice(i, 1);
         score++;
         document.getElementById("score").textContent = score + " / " + cfg.target;
-        if (score % 5 === 0) speed += 0.3; // Плавное ускорение
+        if (score % 5 === 0) speed += 0.2; // Плавное ускорение внутри уровня
       }
     }
   }
@@ -315,20 +314,14 @@
     ctx.clearRect(0, 0, W, H);
 
     // Фон
-    if (isHalloweenMode) {
-        var grad = ctx.createLinearGradient(0, 0, 0, H);
-        grad.addColorStop(0, "#2a0a2a"); grad.addColorStop(1, "#0a0a0a");
-        ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
-    } else {
-        var grad = ctx.createLinearGradient(0, 0, 0, H);
-        grad.addColorStop(0, "#16213e"); grad.addColorStop(1, "#0f3460");
-        ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
-    }
+    var grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, "#16213e"); grad.addColorStop(1, "#0f3460");
+    ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
 
     // Земля
-    ctx.fillStyle = isHalloweenMode ? "#ff8c00" : "#0f3460";
+    ctx.fillStyle = "#0f3460";
     ctx.fillRect(0, groundY, W, H - groundY);
-    ctx.strokeStyle = isHalloweenMode ? "#6a0dad" : "#ffd700";
+    ctx.strokeStyle = "#ffd700";
     ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, groundY); ctx.lineTo(W, groundY); ctx.stroke();
 
     // Игрок
@@ -336,6 +329,7 @@
     ctx.fillStyle = c; ctx.shadowColor = c; ctx.shadowBlur = 20;
     
     if (selectedColor === 4) {
+        // Тыква
         ctx.fillRect(player.x, player.y, player.size, player.size);
         ctx.fillStyle = "#000";
         ctx.fillRect(player.x + 8, player.y + 10, 8, 8);
@@ -353,17 +347,11 @@
     // Препятствия
     for (var i = 0; i < obstacles.length; i++) {
       var o = obstacles[i];
-      if (isHalloweenMode && o.type === "square") {
-          ctx.fillStyle = "#888"; ctx.shadowColor = "#888"; ctx.shadowBlur = 10;
-          ctx.fillRect(o.x, o.y, o.w, o.h);
-          ctx.beginPath(); ctx.arc(o.x + o.w/2, o.y, o.w/2, Math.PI, 0); ctx.fill();
+      ctx.fillStyle = "#e94560"; ctx.shadowColor = "#e94560"; ctx.shadowBlur = 15;
+      if (o.type === "spike") {
+        ctx.beginPath(); ctx.moveTo(o.x, o.y + o.h); ctx.lineTo(o.x + o.w / 2, o.y); ctx.lineTo(o.x + o.w, o.y + o.h); ctx.closePath(); ctx.fill();
       } else {
-          ctx.fillStyle = "#e94560"; ctx.shadowColor = "#e94560"; ctx.shadowBlur = 15;
-          if (o.type === "spike") {
-            ctx.beginPath(); ctx.moveTo(o.x, o.y + o.h); ctx.lineTo(o.x + o.w / 2, o.y); ctx.lineTo(o.x + o.w, o.y + o.h); ctx.closePath(); ctx.fill();
-          } else {
-            ctx.fillRect(o.x, o.y, o.w, o.h);
-          }
+        ctx.fillRect(o.x, o.y, o.w, o.h);
       }
     }
     ctx.shadowBlur = 0;
@@ -386,8 +374,7 @@
   }
 
   // --- КНОПКИ ---
-  document.getElementById("playBtn").addEventListener("click", function() { startGame(false, 0); });
-  document.getElementById("halloweenBtn").addEventListener("click", function() { startGame(true, 0); });
+  document.getElementById("playBtn").addEventListener("click", function() { startGame(0); });
   document.getElementById("levelsBtn").addEventListener("click", showLevels);
   document.getElementById("backToMenuBtn").addEventListener("click", showMenu);
   
@@ -396,12 +383,12 @@
     (function(btn) {
       btn.addEventListener("click", function() {
         var lvl = parseInt(btn.getAttribute("data-level"), 10);
-        startGame(false, lvl); // Уровни запускают обычный режим
+        startGame(lvl);
       });
     })(levelBtns[i]);
   }
 
-  document.getElementById("againBtn").addEventListener("click", function() { startGame(isHalloweenMode, currentLevel); });
+  document.getElementById("againBtn").addEventListener("click", function() { startGame(currentLevel); });
   document.getElementById("menuBtn").addEventListener("click", showMenu);
   document.getElementById("pauseBtn").addEventListener("click", togglePause);
   document.getElementById("resumeBtn").addEventListener("click", togglePause);
